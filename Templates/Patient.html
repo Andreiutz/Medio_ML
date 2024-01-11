@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Predictions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            width: 800px; /* Increased width for the form */
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        select, input {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            background-color: #4CAF50;
+            margin-top: 20px;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        #comorbidities {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #comorbidities th, #comorbidities td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        #comorbidities th {
+            background-color: #f2f2f2;
+        }
+
+        #comorbidities input[type="checkbox"] {
+            margin-right: 5px;
+            width: 16px; /* Adjust this width to make the checkbox column smaller */
+        }
+
+        #comorbidities td:first-child {
+            width: 20px; /* Adjust this width to make the first column smaller */
+        }
+
+        #comorbidities tr.checked {
+            background-color: #c8e6c9; /* Light green background for checked rows */
+        }
+
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        tr.checked {
+            background-color: #c8e6c9;
+        }
+    </style>
+    <script>
+        function highlightRow(checkbox) {
+            var row = checkbox.parentNode.parentNode;
+            if (checkbox.checked) {
+                row.classList.add("checked");
+            } else {
+                row.classList.remove("checked");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <h1>Patient Model</h1>
+    </div>
+
+    <form method="post" action="{{ url_for('patient') }}">
+        <div>
+            <label for="city">City</label>
+            <select name="city" id="city">
+                {% set cities = ['Cluj Napoca', 'Bucuresti', 'Timisoara', 'Iasi', 'Constanta'] %}
+                {% for c in cities %}
+                    <option value="{{ c }}" {% if c == city %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="sex">Sex</label>
+            <select name="sex" id="sex">
+                <option value="Male" {% if sex == 'Male' %}selected{% endif %}>Male</option>
+                <option value="Female" {% if sex == 'Female' %}selected{% endif %}>Female</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="age">Age</label>
+            <input type="number" name="age" id="age" value="{{ age }}" min="1" max="100">
+        </div>
+
+        <div>
+            <table id="comorbidities">
+                <tr>
+                    <th></th>
+                    <th>Comorbidities</th>
+                </tr>
+                {% for disease in [{'value': 'ht', 'name': 'Hypertension'}, {'value': 'af', 'name': 'Atrial Fibrillation'}, {'value': 'vi', 'name': 'Valvular Insufficiency'}, {'value': 'cihd', 'name': 'Coronary Ischemic Heart Disease'}, {'value': 'copd', 'name': 'Chronic Obstructive Pulmonary Disease'}] %}
+                    <tr>
+                        <td><input type="checkbox" name="comorbidities" id="{{ disease.value }}" value="{{ disease.value }}" onchange="highlightRow(this)" {% if disease.value in comorbidities %}checked{% endif %}>{% if disease.value in comorbidities %}<script>highlightRow(document.getElementById('{{ disease.value }}'));</script>{% endif %}</td>
+
+                        <td>{{ disease.name }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        
+            {% if table %}
+                <table border="1" id="predictions">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Heart Failure</th>
+                            <th>Respiratory Failure</th>
+                            <th>Cerebrovascular Infarction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table %}
+                            <tr>
+                                <td>{{ row['Date'] }}</td>
+                                <td>{{ row['Heart Failure'] }}</td>
+                                <td>{{ row['Respiratory Failure'] }}</td>
+                                <td>{{ row['Cerebrovascular Infarction'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+    
+            <div>
+                <button type="submit" id="predictButton">Make Predictions</button>
+            </div>
+        </form>
+    </body>
+    </html>
+    

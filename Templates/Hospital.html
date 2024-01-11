@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Model</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            width: 600px; /* Increased width for the form */
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        select {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            background-color: #4CAF50;
+            margin-top: 20px;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        #predictions {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #predictions th, #predictions td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        #predictions th {
+            background-color: #f2f2f2;
+        }
+
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Hospital Model</h1>
+    </div>
+
+    <form method="post" action="{{ url_for('hospital') }}">
+        <div>
+            <label for="city">City</label>
+            <select name="city" id="city">
+                {% set cities = ['Cluj Napoca', 'Bucuresti', 'Timisoara', 'Iasi', 'Constanta'] %}
+                {% for c in cities %}
+                    <option value="{{ c }}" {% if c == city %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% if table %}
+            <table border="1" id="predictions">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patients</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in table %}
+                        <tr>
+                            <td>{{ row['Date'] }}</td>
+                            <td>{{ row['Patients'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <div>
+            <button type="submit">Make Predictions</button>
+        </div>
+    </form>
+</body>
+</html>
